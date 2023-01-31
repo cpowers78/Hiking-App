@@ -47,7 +47,7 @@ function App() {
       </Grid>
       <Grid item md={6}>
       <LoadScript
-        googleMapsApiKey="AIzaSyAJwKOwIZVEh5XW1rV7hEknO38vFvXFtnY"
+        googleMapsApiKey="key"
       >
         <GoogleMap
           mapContainerStyle={containerStyle}
