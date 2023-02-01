@@ -1,15 +1,28 @@
 
-import React from "react";
+import React, {useState} from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import Grid from '@mui/material/Grid';
+import Axios from 'axios';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 
 
 
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2e7d32',
+    },
+    secondary: {
+      main: '#c5e1a5',
+    },
+  },
+});
 
 
 function App() {
@@ -19,47 +32,114 @@ function App() {
     height: '800px'
   };
   // This dictates where the map will start.
-  const center = {
-    lat: -3.745,
-    lng: -38.523
-  };
+  const [center, setCenter] = useState({
+    lat: 40.855930,
+    lng: -73.200668
+  });
+
+  const [hikingLocations, setHikingLocations] = useState([]);
+
+  //Initializing the location and storing it in variable with useState
+  const [location, setLocation] = useState(" ");
+
+  const[zoomValue, setZoomValue]=useState(10);
+
  
+
+  function changeLocation(event){
+    setZoomValue(10);
+    return (setLocation(event.target.value));
+  }
+
+  async function handleSubmit(event){
+    event.preventDefault();
+    const response = await Axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=AIzaSyAJwKOwIZVEh5XW1rV7hEknO38vFvXFtnY`);
+    const { lat, lng } = response.data.results[0].geometry.location;
+    setCenter({ lat, lng });
+  }
+
+  const handleClick = async (event) => {
+    event.preventDefault();
+    try {
+      // Make a request to the Google Maps Places API to retrieve the hiking trails near the user's search
+      const response = await Axios.get(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=hiking%20trails%20in%20${location}&key=AIzaSyAJwKOwIZVEh5XW1rV7hEknO38vFvXFtnY`);
+
+      // Extract the hiking locations from the API response
+      const locations = response.data.results.map(result => ({
+        lat: result.geometry.location.lat,
+        lng: result.geometry.location.lng,
+        name: result.name
+      }));
+
+      //Update the state with the hiking locations
+      setHikingLocations(locations);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+  function zoomIn (lat, lng){
+    setCenter({lat, lng});
+    setZoomValue(18);
+
+  }
+
+  // onSubmit={(event) => handleSubmit(event) && handleClick(event)}
   return (
-    <Grid container spacing={2}>
+    <ThemeProvider theme={theme}>
+    <Grid container alignItems="center" spacing={2}>
     <Grid item md={6}>
-    <Box component="form" noValidate >
+    <Box component="form" noValidate onSubmit={(event) => handleSubmit(event) && handleClick(event)}>
+    <Typography>Where Would You Like to Hike?</Typography>
       <TextField
         margin="normal"
         required
         fullWidth
         id="location"
         label="Location"
-       
+        value={location}
+        onChange={changeLocation}
         name="location"
         autoComplete="location"
         autoFocus
        
       />
-      <Button type="submit" fullWidth variant="contained">
-        Submit
+      <Button type="submit" fullWidth variant="contained" >
+        Let's Go
       </Button>
       </Box>
       </Grid>
       <Grid item md={6}>
       <LoadScript
-        googleMapsApiKey="key"
+        googleMapsApiKey="AIzaSyAJwKOwIZVEh5XW1rV7hEknO38vFvXFtnY"
       >
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}
-          zoom={10}
+          zoom={zoomValue}
         >
+          {hikingLocations.map(location =>(
+            <Marker
+            key={location.name}
+            position={{lat: location.lat, lng: location.lng}}
+            title={location.name}
+            onClick={() => zoomIn(location.lat, location.lng)}
+            icon={{
+              url: "https://static.thenounproject.com/png/3342420-200.png",
+              scaledSize: {width: 50, height: 50}
+              
+            }}
+            />
+          ))}
           <></>
         </GoogleMap>
       </LoadScript>
       </Grid>
     
     </Grid>
+    </ThemeProvider>
+    
   );
 }
 
