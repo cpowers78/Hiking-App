@@ -9,6 +9,11 @@ import Grid from '@mui/material/Grid';
 import Axios from 'axios';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { InputAdornment } from "@mui/material";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ForwardIcon from '@mui/icons-material/Forward';
+import "./styles.css";
+
 
 
 
@@ -79,7 +84,7 @@ function App() {
   };
 
 
-  function zoomIn (lat, lng){
+  function zoomIn (lat, lng, prevZoomValue){
     setCenter({lat, lng});
     setZoomValue(18);
 
@@ -88,10 +93,15 @@ function App() {
   // onSubmit={(event) => handleSubmit(event) && handleClick(event)}
   return (
     <ThemeProvider theme={theme}>
-    <Grid container alignItems="center" spacing={2}>
+    <Grid container className="background-container" alignItems="center" spacing={2}>
     <Grid item md={6}>
     <Box component="form" noValidate onSubmit={(event) => handleSubmit(event) && handleClick(event)}>
-    <Typography>Where Would You Like to Hike?</Typography>
+    <Typography variant="h4" gutterBottom>
+    Let's Plan Your Next Adventure
+    </Typography>
+    <Typography variant="subtitle1" gutterBottom>
+    Where Would You Like to Hike?
+    </Typography>
       <TextField
         margin="normal"
         required
@@ -103,9 +113,16 @@ function App() {
         name="location"
         autoComplete="location"
         autoFocus
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <LocationOnIcon fontsize="small" />
+            </InputAdornment>
+          ),
+        }}
        
       />
-      <Button type="submit" fullWidth variant="contained" >
+      <Button type="submit" fullWidth variant="contained" color="primary" endIcon={<ForwardIcon />}>
         Let's Go
       </Button>
       </Box>
