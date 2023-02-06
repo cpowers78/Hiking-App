@@ -102,6 +102,9 @@ function App() {
     <Typography variant="subtitle1" gutterBottom>
     Where Would You Like to Hike?
     </Typography>
+    <Typography variant="subtitle1" gutterBottom>
+    (At this time in order to see hiking icons you must have Allow CORS: Access-Control-Allow-origin Google Chrome Extension)
+    </Typography>
       <TextField
         margin="normal"
         required
